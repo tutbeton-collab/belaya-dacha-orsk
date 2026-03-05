@@ -119,7 +119,7 @@ body {
 /* Главный экран */
 .hero {
     background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
-                url('images/tomatoes_close.jpg') center/cover;
+                url('images/peppers_harvest.jpg') center/cover;
     height: 100vh;
     display: flex;
     align-items: center;
