@@ -2,183 +2,591 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <!-- SEO -->
-    <title>Белая Дача Орск | Свежие овощи с поля | Купить помидоры, огурцы</title>
-    <meta name="description" content="Белая Дача в Орске — свежие овощи напрямую с поля. Томаты, огурцы, кукуруза, перец, картофель, арбузы. Без химии и посредников. Семейная ферма.">
-    <meta name="keywords" content="белая дача, белая дача орск, овощи орск, купить овощи орск, помидоры орск, огурцы орск, семейная ферма, фермерские продукты, огород, овощи с поля, свежие овощи, домашние овощи, купить помидоры, купить огурцы, кукуруза орск, арбузы орск, перец болгарский, картофель орск, брокколи">
-    <meta name="author" content="Белая Дача Орск">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Белая Дача — Овощи с доставкой</title>
 
-    <!-- Для Яндекс и Google -->
-    <meta name="robots" content="index, follow">
+    <!-- MAX Bridge — ОБЯЗАТЕЛЬНО для мини-приложения -->
+    <script src="https://st.max.ru/js/max-web-app.js"></script>
 
-    <!-- Open Graph (для красивых ссылок в соцсетях) -->
-    <meta property="og:title" content="Белая Дача Орск | Свежие овощи с поля">
-    <meta property="og:description" content="Натуральные овощи напрямую с поля в Орске. Без химии и посредников.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://t.me/bd5656">
-    <meta property="og:image" content="images/peppers.jpg">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            min-height: 100vh;
+        }
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #2E7D32, #1B5E20);
+            color: white;
+            padding: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 { font-size: 20px; margin-bottom: 4px; }
+        .header p { font-size: 13px; opacity: 0.85; }
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        /* Cart bar */
+        .cart-bar {
+            background: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+            position: sticky;
+            top: 72px;
+            z-index: 99;
+        }
+        .cart-bar-left { display: flex; align-items: center; gap: 8px; }
+        .cart-bar-left span { font-size: 16px; font-weight: 600; }
+        .cart-total { font-size: 16px; font-weight: 700; color: #FF6F00; }
 
-    <link rel="stylesheet" href="style.css">
+        /* Product list */
+        .products { padding: 8px; }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        .product-img {
+            width: 72px;
+            height: 72px;
+            border-radius: 10px;
+            object-fit: cover;
+            background: #eee;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .product-info { flex: 1; min-width: 0; }
+        .product-name {
+            font-size: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .product-price {
+            font-size: 14px;
+            color: #FF6F00;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        /* Quantity controls */
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .qty-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .qty-btn.minus { background: #C62828; }
+        .qty-btn.plus { background: #2E7D32; }
+        .qty-btn:disabled { opacity: 0.3; cursor: default; }
+        .qty-num {
+            width: 32px;
+            text-align: center;
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        /* Photo modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-content {
+            background: #222;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 100%;
+            padding: 20px;
+            color: white;
+        }
+        .modal-content h2 { font-size: 20px; margin-bottom: 12px; }
+        .modal-content img {
+            width: 100%;
+            border-radius: 10px;
+            max-height: 300px;
+            object-fit: contain;
+            background: #333;
+        }
+        .modal-content .modal-price {
+            font-size: 18px;
+            color: #FF6F00;
+            font-weight: 700;
+            margin-top: 12px;
+        }
+        .modal-add-btn {
+            width: 100%;
+            padding: 14px;
+            background: #2E7D32;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 16px;
+        }
+        .modal-add-btn.added { background: #FF6F00; }
+        .modal-close-hint {
+            text-align: center;
+            font-size: 12px;
+            color: #888;
+            margin-top: 12px;
+        }
+
+        /* Cart screen */
+        .cart-screen {
+            display: none;
+            padding: 8px;
+        }
+        .cart-screen.show { display: block; }
+        .cart-item {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .cart-item img {
+            width: 50px; height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .cart-item-info { flex: 1; }
+        .cart-item-name { font-size: 14px; font-weight: 600; }
+        .cart-item-price { font-size: 14px; color: #FF6F00; font-weight: 600; }
+
+        /* Order button */
+        .order-section {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 8px;
+        }
+        .order-total { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+
+        .order-section input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+        .order-section input:focus { border-color: #2E7D32; outline: none; }
+        .order-btn {
+            width: 100%;
+            padding: 14px;
+            background: #FF6F00;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        .order-btn:disabled { opacity: 0.5; }
+        .order-btn.success { background: #2E7D32; }
+
+        .empty-cart {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        .empty-cart p { font-size: 16px; margin-top: 8px; }
+
+        /* Back button in cart */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 16px;
+            background: #1B5E20;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+
+        /* Success screen */
+        .success-screen {
+            display: none;
+            text-align: center;
+            padding: 60px 20px;
+        }
+        .success-screen.show { display: block; }
+        .success-screen .emoji { font-size: 64px; }
+        .success-screen h2 { font-size: 22px; margin: 16px 0 8px; }
+        .success-screen p { color: #666; font-size: 15px; }
+
+        /* Screen visibility */
+        .screen { display: none; }
+        .screen.active { display: block; }
+    </style>
 </head>
 <body>
-    <!-- Шапка -->
-    <header class="header">
-        <nav class="nav container">
-            <div class="logo">🥬 Белая Дача Орск</div>
-            <ul class="nav-menu">
-                <li><a href="#home">Главная</a></li>
-                <li><a href="#about">О нас</a></li>
-                <li><a href="#products">Продукция</a></li>
-                <li><a href="#gallery">Галерея</a></li>
-                <li><a href="#contact">Контакты</a></li>
-            </ul>
-            <button class="nav-toggle" aria-label="Меню">☰</button>
-        </nav>
-    </header>
 
-    <!-- Главный экран -->
-    <section id="home" class="hero">
-        <div class="hero-content">
-            <h1>Натуральные овощи с нашего поля</h1>
-            <p>Выращиваем без химии и посредников</p>
-            <a href="#products" class="btn btn-primary">Смотреть продукцию</a>
+<!-- Screen: Catalog -->
+<div id="catalog-screen" class="screen active">
+    <div class="header">
+        <h1>🌿 Белая Дача</h1>
+        <p>Семейная ферма · Свежие овощи с доставкой</p>
+    </div>
+
+    <div class="cart-bar" id="cart-bar" onclick="showCart()">
+        <div class="cart-bar-left">
+            <span>🛒 Корзина</span>
         </div>
-    </section>
+        <div class="cart-total" id="cart-summary">0 ₽</div>
+    </div>
 
-    <!-- Галерея -->
-    <section id="gallery" class="gallery section">
-        <div class="container">
-            <h2 class="section-title">Наши овощи</h2>
-            <div class="gallery-grid">
-                <div class="gallery-item">
-                    <img src="images/tomatoes_harvest.jpg" alt="Свежие томаты в корзине">
-                    <p>Свежие томаты с грядки</p>
-                </div>
-                <div class="gallery-item">
-                    <img src="images/peppers.jpg" alt="Болгарский перец красный и жёлтый">
-                    <p>Сладкий болгарский перец</p>
-                </div>
-                <div class="gallery-item">
-                    <img src="images/peppers_harvest.jpg" alt="Урожай перца в корзинах">
-                    <p>Щедрый урожай перцев</p>
-                </div>
-                <div class="gallery-item">
-                    <img src="images/potatoes.jpg" alt="Домашний картофель">
-                    <p>Рассыпчатый картофель</p>
-                </div>
-                <div class="gallery-item">
-                    <img src="images/potatoes_sacks.jpg" alt="Мешки с картофелем">
-                    <p>Заготовка картофеля</p>
-                </div>
-                <div class="gallery-item">
-                    <img src="images/cabbage.jpg" alt="Свежая капуста на фоне поля">
-                    <p>Хрустящая белокочанная капуста</p>
-                </div>
-                <div class="gallery-item">
-                    <img src="images/pumpkin.jpg" alt="Оранжевая тыква на грядке">
-                    <p>Сладкая тыква</p>
-                </div>
-                <div class="gallery-item">
-                    <img src="images/pumpkin_green.jpg" alt="Зелёная тыква">
-                    <p>Мускатная тыква</p>
-                </div>
-                <div class="gallery-item">
-                    <img src="images/carrots_field.jpg" alt="Строительство теплиц">
-                    <p>Строим теплицы</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    <div class="products" id="product-list"></div>
+</div>
 
-    <!-- Продукция -->
-    <section id="products" class="products section">
-        <div class="container">
-            <h2 class="section-title">Наша продукция</h2>
-            <div class="products-grid">
-                <div class="product-card">
-                    <div class="product-icon">🍅</div>
-                    <h3>Томаты</h3>
-                    <p>Сочные помидоры с грядки. Разные сорта: сливки, черри, розовые.</p>
-                </div>
-                <div class="product-card">
-                    <div class="product-icon">🥒</div>
-                    <h3>Огурцы</h3>
-                    <p>Хрустящие свежие огурчики. Идеальны для салатов и засолки.</p>
-                </div>
-                <div class="product-card">
-                    <div class="product-icon">🌽</div>
-                    <h3>Кукуруза</h3>
-                    <p>Сладкая сахарная кукуруза. Собираем в день продажи.</p>
-                </div>
-                <div class="product-card">
-                    <div class="product-icon">🥦</div>
-                    <h3>Брокколи</h3>
-                    <p>Свежая брокколи. Богата витаминами и полезными веществами.</p>
-                </div>
-                <div class="product-card">
-                    <div class="product-icon">🌶️</div>
-                    <h3>Перец</h3>
-                    <p>Болгарский перец разных цветов. Сладкий и ароматный.</p>
-                </div>
-                <div class="product-card">
-                    <div class="product-icon">🥕</div>
-                    <h3>Морковь</h3>
-                    <p>Сладкая сочная морковь. Выращивается без химии.</p>
-                </div>
-                <div class="product-card">
-                    <div class="product-icon">🥔</div>
-                    <h3>Картофель</h3>
-                    <p>Натуральный картофель без химии. Рассыпчатый и вкусный.</p>
-                </div>
-                <div class="product-card">
-                    <div class="product-icon">🥒</div>
-                    <h3>Кабачки</h3>
-                    <p>Молодые кабачки. Нежные и вкусные.</p>
-                </div>
-                <div class="product-card">
-                    <div class="product-icon">🍉</div>
-                    <h3>Арбузы</h3>
-                    <p>Сладкие домашние арбузы. Выращиваются на бахче.</p>
-                </div>
-            </div>
-        </div>
-    </section>
+<!-- Screen: Cart -->
+<div id="cart-screen" class="screen">
+    <div class="header">
+        <h1>🛒 Корзина</h1>
+        <p>Ваши товары</p>
+    </div>
 
-    <!-- Контакты -->
-    <section id="contact" class="contact section">
-        <div class="container">
-            <h2 class="section-title">Контакты</h2>
-            <div class="contact-content">
-                <a href="https://t.me/bd5656" target="_blank" class="tg-contact-card">
-                    <span class="tg-icon">📢</span>
-                    <h3>Telegram канал</h3>
-                    <p>@bd5656</p>
-                </a>
-                <a href="https://t.me/belay_dahj" target="_blank" class="tg-contact-card">
-                    <span class="tg-icon">💬</span>
-                    <h3>По вопросам</h3>
-                    <p>@belay_dahj</p>
-                </a>
-            </div>
-        </div>
-    </section>
+    <div style="padding: 8px;">
+        <button class="back-btn" onclick="showCatalog()">← Назад</button>
+    </div>
 
-    <!-- Подвал -->
-    <footer class="footer">
-        <div class="container">
-            <p>&copy; 2026 Белая Дача Орск. Все права защищены.</p>
-        </div>
-    </footer>
+    <div id="cart-items" style="padding: 0 8px;"></div>
 
-    <script src="script.js"></script>
+    <div id="order-section" class="order-section" style="margin: 8px; display: none;">
+        <div class="order-total" id="order-total">Итого: 0 ₽</div>
+        <input type="text" id="input-name" placeholder="Ваше имя" required>
+        <input type="tel" id="input-phone" placeholder="Телефон (+7...)" required>
+        <input type="text" id="input-address" placeholder="Адрес доставки">
+        <button class="order-btn" id="order-btn" onclick="submitOrder()">Оформить заказ</button>
+    </div>
+</div>
+
+<!-- Screen: Success -->
+<div id="success-screen" class="screen">
+    <div class="success-screen show">
+        <div class="emoji">✅</div>
+        <h2 id="success-name">Заказ оформлен!</h2>
+        <p>Мы свяжемся с вами для подтверждения</p>
+        <p style="margin-top: 16px; color: #2E7D32; font-weight: 600;">Доставка в течение 24 часов</p>
+        <button class="order-btn" style="margin-top: 24px;" onclick="backToStart()">На главную</button>
+    </div>
+</div>
+
+<!-- Photo modal -->
+<div class="modal-overlay" id="photo-modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 id="modal-title"></h2>
+        <img id="modal-image" src="" alt="">
+        <div class="modal-price" id="modal-price"></div>
+        <button class="modal-add-btn" id="modal-add-btn">Добавить в корзину +</button>
+        <div class="modal-close-hint">Нажмите вне окна чтобы закрыть</div>
+    </div>
+</div>
+
+<script>
+// ===== PRODUCTS =====
+const IMG_BASE = "https://tutbeton-collab.github.io/belaya-dacha-orsk/images";
+
+const PRODUCTS = [
+    { id: 0, name: "Томаты", emoji: "🍅", price: 500, unit: "ведро",
+      img: IMG_BASE + "/tomatoes_close.jpg", imgFull: IMG_BASE + "/tomatoes_buckets.jpg" },
+    { id: 1, name: "Перец", emoji: "🫑", price: 200, unit: "ведро",
+      img: IMG_BASE + "/peppers.jpg", imgFull: IMG_BASE + "/peppers_harvest.jpg" },
+    { id: 2, name: "Огурец", emoji: "🥒", price: 500, unit: "ведро",
+      img: IMG_BASE + "/cucumbers.jpg", imgFull: IMG_BASE + "/cucumbers.jpg" },
+    { id: 3, name: "Арбуз", emoji: "🍉", price: 200, unit: "шт",
+      img: IMG_BASE + "/watermelon.jpg", imgFull: IMG_BASE + "/watermelon.jpg" },
+    { id: 4, name: "Горький перец", emoji: "🌶️", price: 100, unit: "12 шт",
+      img: IMG_BASE + "/peppers.jpg", imgFull: IMG_BASE + "/peppers.jpg" },
+    { id: 5, name: "Баклажан", emoji: "🍆", price: 300, unit: "ведро",
+      img: IMG_BASE + "/cabbage.jpg", imgFull: IMG_BASE + "/cabbage.jpg" },
+    { id: 6, name: "Тыква", emoji: "🎃", price: 35, unit: "кг",
+      img: IMG_BASE + "/pumpkin.jpg", imgFull: IMG_BASE + "/pumpkin_green.jpg" },
+];
+
+// ===== CART STATE =====
+let cart = {}; // productId -> quantity
+
+// ===== INIT MAX BRIDGE =====
+if (window.WebApp) {
+    window.WebApp.ready();
+    window.WebApp.enableClosingConfirmation();
+
+    // Auto-fill phone from MAX
+    if (window.WebApp.initDataUnsafe && window.WebApp.initDataUnsafe.user) {
+        const user = window.WebApp.initDataUnsafe.user;
+        const nameInput = document.getElementById('input-name');
+        if (nameInput && user.first_name) {
+            nameInput.value = user.first_name + (user.last_name ? ' ' + user.last_name : '');
+        }
+    }
+}
+
+// Request phone from MAX
+function requestPhone() {
+    if (window.WebApp && window.WebApp.requestContact) {
+        window.WebApp.requestContact().then(function(result) {
+            if (result && result.phone) {
+                document.getElementById('input-phone').value = '+' + result.phone;
+            }
+        }).catch(function() {});
+    }
+}
+
+// ===== RENDER CATALOG =====
+function renderCatalog() {
+    const list = document.getElementById('product-list');
+    list.innerHTML = '';
+
+    PRODUCTS.forEach(function(p) {
+        const qty = cart[p.id] || 0;
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML =
+            '<img class="product-img" src="' + p.img + '" alt="' + p.name + '" onclick="showPhoto(' + p.id + ')">' +
+            '<div class="product-info" onclick="showPhoto(' + p.id + ')">' +
+                '<div class="product-name">' + p.emoji + ' ' + p.name + '</div>' +
+                '<div class="product-price">' + p.price + ' ₽ / ' + p.unit + '</div>' +
+            '</div>' +
+            '<div class="qty-controls">' +
+                '<button class="qty-btn minus" onclick="changeQty(' + p.id + ',-1)"' + (qty <= 0 ? ' disabled' : '') + '>−</button>' +
+                '<span class="qty-num">' + qty + '</span>' +
+                '<button class="qty-btn plus" onclick="changeQty(' + p.id + ',1)">+</button>' +
+            '</div>';
+        list.appendChild(card);
+    });
+
+    updateCartSummary();
+}
+
+// ===== QUANTITY =====
+function changeQty(id, delta) {
+    if (!cart[id]) cart[id] = 0;
+    cart[id] += delta;
+    if (cart[id] <= 0) delete cart[id];
+    renderCatalog();
+    // Haptic feedback
+    if (window.WebApp && window.WebApp.HapticFeedback) {
+        window.WebApp.HapticFeedback.selectionChanged();
+    }
+}
+
+// ===== CART SUMMARY =====
+function updateCartSummary() {
+    let total = 0, count = 0;
+    for (var id in cart) {
+        const p = PRODUCTS.find(function(x) { return x.id == id; });
+        if (p) { total += p.price * cart[id]; count += cart[id]; }
+    }
+    const el = document.getElementById('cart-summary');
+    if (count === 0) {
+        el.textContent = '0 ₽';
+    } else {
+        el.textContent = count + ' шт · ' + total + ' ₽';
+    }
+}
+
+// ===== PHOTO MODAL =====
+function showPhoto(id) {
+    const p = PRODUCTS.find(function(x) { return x.id === id; });
+    if (!p) return;
+    document.getElementById('modal-title').textContent = p.emoji + ' ' + p.name;
+    document.getElementById('modal-image').src = p.imgFull;
+    document.getElementById('modal-price').textContent = p.price + ' ₽ / ' + p.unit;
+
+    const btn = document.getElementById('modal-add-btn');
+    btn.textContent = 'Добавить в корзину +';
+    btn.className = 'modal-add-btn';
+    btn.onclick = function() {
+        changeQty(id, 1);
+        btn.textContent = '✓ Добавлено!';
+        btn.className = 'modal-add-btn added';
+        setTimeout(function() { closeModal(); }, 600);
+    };
+
+    document.getElementById('photo-modal').classList.add('show');
+}
+
+function closeModal() {
+    document.getElementById('photo-modal').classList.remove('show');
+}
+
+// ===== SCREEN NAVIGATION =====
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+    document.getElementById(id).classList.add('active');
+}
+
+function showCatalog() { showScreen('catalog-screen'); }
+function showCart() {
+    renderCart();
+    showScreen('cart-screen');
+}
+function backToStart() {
+    cart = {};
+    renderCatalog();
+    showCatalog();
+}
+
+// ===== RENDER CART =====
+function renderCart() {
+    const container = document.getElementById('cart-items');
+    const orderSection = document.getElementById('order-section');
+    container.innerHTML = '';
+
+    let total = 0, count = 0;
+    for (var id in cart) {
+        const p = PRODUCTS.find(function(x) { return x.id == id; });
+        if (!p) continue;
+        const qty = cart[id];
+        total += p.price * qty;
+        count += qty;
+
+        const item = document.createElement('div');
+        item.className = 'cart-item';
+        item.innerHTML =
+            '<img src="' + p.img + '" alt="' + p.name + '">' +
+            '<div class="cart-item-info">' +
+                '<div class="cart-item-name">' + p.emoji + ' ' + p.name + '</div>' +
+                '<div class="cart-item-price">' + (p.price * qty) + ' ₽</div>' +
+            '</div>' +
+            '<div class="qty-controls">' +
+                '<button class="qty-btn minus" onclick="cartChangeQty(' + p.id + ',-1)">−</button>' +
+                '<span class="qty-num">' + qty + '</span>' +
+                '<button class="qty-btn plus" onclick="cartChangeQty(' + p.id + ',1)">+</button>' +
+            '</div>';
+        container.appendChild(item);
+    }
+
+    if (count === 0) {
+        container.innerHTML = '<div class="empty-cart"><div style="font-size:48px">🛒</div><p>Корзина пуста</p></div>';
+        orderSection.style.display = 'none';
+    } else {
+        orderSection.style.display = 'block';
+        document.getElementById('order-total').textContent = 'Итого: ' + total + ' ₽';
+    }
+}
+
+function cartChangeQty(id, delta) {
+    if (!cart[id]) cart[id] = 0;
+    cart[id] += delta;
+    if (cart[id] <= 0) delete cart[id];
+    renderCart();
+    updateCartSummary();
+}
+
+// ===== SUBMIT ORDER =====
+function submitOrder() {
+    const name = document.getElementById('input-name').value.trim();
+    const phone = document.getElementById('input-phone').value.trim();
+    const address = document.getElementById('input-address').value.trim();
+
+    if (!name || !phone) {
+        alert('Укажите имя и телефон');
+        return;
+    }
+
+    // Build order text
+    let orderText = '🛒 Новый заказ!\n';
+    orderText += '👤 ' + name + '\n';
+    orderText += '📱 ' + phone + '\n';
+    if (address) orderText += '📍 ' + address + '\n';
+    orderText += '\n';
+
+    let total = 0;
+    for (var id in cart) {
+        const p = PRODUCTS.find(function(x) { return x.id == id; });
+        if (!p) continue;
+        const qty = cart[id];
+        orderText += p.emoji + ' ' + p.name + ' × ' + qty + ' = ' + (p.price * qty) + '₽\n';
+        total += p.price * qty;
+    }
+    orderText += '\n💰 Итого: ' + total + ' ₽';
+
+    // Get user info from MAX Bridge
+    let userId = null;
+    if (window.WebApp && window.WebApp.initDataUnsafe && window.WebApp.initDataUnsafe.user) {
+        userId = window.WebApp.initDataUnsafe.user.id;
+    }
+
+    const btn = document.getElementById('order-btn');
+    btn.disabled = true;
+    btn.textContent = 'Отправка...';
+
+    // Send to backend
+    fetch('https://95.71.133.181:8091/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            name: name,
+            phone: phone,
+            address: address,
+            items: cart,
+            total: total,
+            user_id: userId,
+            message: orderText
+        })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        document.getElementById('success-name').textContent = name + ', заказ оформлен!';
+        showScreen('success-screen');
+    })
+    .catch(function(err) {
+        // Fallback: send via MAX Bridge shareMaxContent
+        if (window.WebApp && window.WebApp.shareMaxContent) {
+            window.WebApp.shareMaxContent({ text: orderText });
+        } else {
+            alert('Ошибка отправки. Позвоните нам!');
+        }
+    });
+}
+
+// ===== START =====
+renderCatalog();
+</script>
+
 </body>
 </html>
